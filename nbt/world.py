@@ -8,6 +8,7 @@ https://minecraft.wiki/w/Level_format
 import os, glob, re
 from . import region
 from . import chunk
+from .chunk import get_chunk_from_nbt
 from .region import InconceivedChunk, Location
 
 class UnknownWorldFormat(Exception):
@@ -24,7 +25,6 @@ class _BaseWorldFolder(object):
     """
     type = "Generic"
     extension = ''
-    chunkclass = chunk.Chunk
 
     def __init__(self, world_folder):
         """Initialize a WorldFolder."""
@@ -103,7 +103,7 @@ class _BaseWorldFolder(object):
             else:
                 # It is not yet cached.
                 # Get file, but do not cache later.
-                regionfile = region.RegionFile(self.regionfiles[(x,z)], chunkclass = self.chunkclass)
+                regionfile = region.RegionFile(self.regionfiles[(x, z)])
                 regionfile.loc = Location(x=x,z=z)
                 close_after_use = True
             try:
@@ -180,7 +180,8 @@ class _BaseWorldFolder(object):
         Return a chunk specified by the chunk coordinates x,z. Raise InconceivedChunk
         if the chunk is not yet generated. To get the raw NBT data, use get_nbt.
         """
-        return self.chunkclass(self.get_nbt(x, z))
+        nbt = self.get_nbt(x, z)
+        return get_chunk_from_nbt(nbt)
 
     def get_chunks(self, boundingbox=None):
         """
@@ -204,7 +205,7 @@ class _BaseWorldFolder(object):
         # TODO: Implement BoundingBox
         # TODO: Implement sort order
         for c in self.iter_nbt():
-            yield self.chunkclass(c)
+            yield get_chunk_from_nbt(c)
 
     def chunk_count(self):
         """Return a count of the chunks in this world folder."""
@@ -235,14 +236,12 @@ class McRegionWorldFolder(_BaseWorldFolder):
     """Represents a world save using the old McRegion format."""
     type = "McRegion"
     extension = 'mcr'
-    chunkclass = chunk.McRegionChunk
 
 
 class AnvilWorldFolder(_BaseWorldFolder):
     """Represents a world save using the new Anvil format."""
     type = "Anvil"
     extension = 'mca'
-    chunkclass = chunk.AnvilChunk
 
 
 class _WorldFolderFactory(object):

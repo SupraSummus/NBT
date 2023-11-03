@@ -95,12 +95,22 @@ def block_id_to_name(bid):
     return name
 
 
+def get_chunk_from_nbt(nbt):
+    data_version = nbt['DataVersion'].value
+    for chunk_class in [
+        Chunk28XX,
+        AnvilChunk,
+    ]:
+        if data_version >= chunk_class.min_supported_data_version:
+            return chunk_class(nbt)
+
+
 # Generic Chunk
 
 class Chunk(object):
     """Class for representing a single chunk."""
     def __init__(self, nbt):
-        self.chunk_data = nbt
+        self.chunk_data = nbt['Level']
         self.coords = self.chunk_data['xPos'],self.chunk_data['zPos']
 
     def get_coords(self):
@@ -145,15 +155,16 @@ class AnvilSection(object):
         # Is the section flattened ?
         # See https://minecraft.wiki/w/1.13/Flattening
 
-        if version == 0 or version == 1343:  # 1343 = MC 1.12.2
+        if version <= 1343:  # 1343 = MC 1.12.2
             self._init_array(nbt)
-        elif version >= 1631 and version <= 2230:  # MC 1.13 to MC 1.15.2
+        elif version <= 2230:  # MC 1.13 to MC 1.15.2
+            self._init_pallete(nbt['Palette'])
             self._init_index_unpadded(nbt)
-        elif version >= 2566 and version <= 2730: # MC 1.16.0 to MC 1.17.2 (latest tested version)
-            self._init_index_padded(nbt)
+        elif version <= 2730:  # MC 1.16.0 to MC 1.17.2 (latest tested version)
+            self._init_pallete(nbt['Palette'])
+            self._init_indexes_padded(nbt['BlockStates'].value)
         else:
-            # best guess for other versions
-            self._init_index_padded(nbt)
+            raise NotImplementedError()
 
         # Section contains 4096 blocks whatever data version
 
@@ -182,11 +193,6 @@ class AnvilSection(object):
     # Contains palette of block names and indexes packed with run-on between elements (pre 1.16 format)
 
     def _init_index_unpadded(self, nbt):
-
-        for p in nbt['Palette']:
-            name = p['Name'].value
-            self.names.append(name)
-
         states = nbt['BlockStates'].value
 
         # Block states are packed into an array of longs
@@ -224,22 +230,15 @@ class AnvilSection(object):
                 curr_long = curr_long >> remaining_bits
                 bits_left = 64 - remaining_bits
 
-
-    # Decode modern section
-    # Contains palette of block names and indexes packed with padding if elements don't fit (post 1.16 format)
-
-    def _init_index_padded(self, nbt):
-        for p in nbt['block_states']['palette']:
+    def _init_pallete(self, palette_nbt):
+        for p in palette_nbt:
             name = p['Name'].value
             self.names.append(name)
 
-        # When there is only one element in the palette and no data
-        # we have single block fill the whole section.
-        if len(self.names) == 1 and 'data' not in nbt['block_states']:
-            self.indexes = [0] * 4096
-            return
-
-        states = nbt['block_states']['data'].value
+    # Decode modern section
+    # Contains indexes packed with padding if elements don't fit (post 1.16 format)
+    def _init_indexes_padded(self, indexes_array):
+        states = indexes_array
         num_bits = (len(self.names) - 1).bit_length()
         if num_bits < 4: num_bits = 4
         mask = 2**num_bits - 1
@@ -281,6 +280,7 @@ class AnvilSection(object):
 # Chunck in Anvil new format
  
 class AnvilChunk(Chunk):
+    min_supported_data_version = 0
 
     def __init__(self, nbt):
         Chunk.__init__(self, nbt)
@@ -292,17 +292,15 @@ class AnvilChunk(Chunk):
 
         try:
             version = nbt['DataVersion'].value
-            if version != 1343 and not (version >= 1631 or version <= 2730):
-                raise NotImplementedError('DataVersion %d not implemented' % (version,))
         except KeyError:
             version = 0
 
         # Load all sections
 
         self.sections = {}
-        if 'sections' in self.chunk_data:
-            for s in self.chunk_data['sections']:
-                if 'block_states' in s.keys():  # sections may only contain lighting information
+        if 'Sections' in self.chunk_data:
+            for s in self.chunk_data['Sections']:
+                if "BlockStates" in s.keys() or "Blocks" in s.keys(): # sections may only contain lighting information
                     self.sections[s['Y'].value] = AnvilSection(s, version)
 
 
@@ -335,6 +333,43 @@ class AnvilChunk(Chunk):
         for s in self.sections.values():
             for b in s.iter_block():
                 yield b
+
+
+class Chunk28XX(AnvilChunk):
+    min_supported_data_version = 2800  # around Minecraft 1.18
+
+    def __init__(self, nbt):
+        self.data_version = nbt['DataVersion'].value
+        self.chunk_data = nbt
+        self.x = self.chunk_data['xPos'].value
+        self.z = self.chunk_data['zPos'].value
+        self.coords = (self.x, self.z)
+
+        self.sections = {}
+        if 'sections' in self.chunk_data:
+            for s in self.chunk_data['sections']:
+                y = s['Y'].value
+                self.sections[y] = Section28XX(s)
+
+    def get_coords(self):
+        """Return the coordinates of this chunk."""
+        return self.coords
+
+
+class Section28XX(AnvilSection):
+    def __init__(self, nbt):
+        self.names = []
+        self.indexes = []
+
+        block_states = nbt['block_states']
+        self._init_pallete(block_states['palette'])
+        if 'data' in block_states:
+            self._init_indexes_padded(block_states['data'])
+        else:
+            # missing data array means all blocks are the same
+            self.indexes = [0] * 4096
+
+        assert len(self.indexes) == 4096
 
 
 class BlockArray(object):

@@ -27,18 +27,60 @@ versions = {
         'stop_command': b'/stop\n',
         'port': 25563,
     },
-    #'1.17.1': {
-    #    'server_jar_url': 'https://piston-data.mojang.com/v1/objects/a16d67e5807f57fc4e550299cf20226194497dc2/server.jar',
-    #    'server_jar_sha256_hex': 'e8c211b41317a9f5a780c98a89592ecb72eb39a6e475d4ac9657e5bc9ffaf55f',
-    #    'stop_command': b'/stop\n',
-    #    'port': 25562,
-    #},
-    #'1.16.5': {
-    #    'server_jar_url': 'https://piston-data.mojang.com/v1/objects/1b557e7b033b583cd9f66746b7a9ab1ec1673ced/server.jar',
-    #    'server_jar_sha256_hex': '58f329c7d2696526f948470aa6fd0b45545039b64cb75015e64c12194b373da6',
-    #    'stop_command': b'/stop\n',
-    #    'port': 25561,
-    #},
+    '1.17.1': {
+        'server_jar_url': 'https://piston-data.mojang.com/v1/objects/a16d67e5807f57fc4e550299cf20226194497dc2/server.jar',
+        'server_jar_sha256_hex': 'e8c211b41317a9f5a780c98a89592ecb72eb39a6e475d4ac9657e5bc9ffaf55f',
+        'stop_command': b'/stop\n',
+        'port': 25562,
+    },
+    '1.16.5': {
+        'server_jar_url': 'https://piston-data.mojang.com/v1/objects/1b557e7b033b583cd9f66746b7a9ab1ec1673ced/server.jar',
+        'server_jar_sha256_hex': '58f329c7d2696526f948470aa6fd0b45545039b64cb75015e64c12194b373da6',
+        'stop_command': b'/stop\n',
+        'port': 25561,
+    },
+    '1.15.2': {
+        'server_jar_url': 'https://piston-data.mojang.com/v1/objects/bb2b6b1aefcd70dfd1892149ac3a215f6c636b07/server.jar',
+        'server_jar_sha256_hex': '80cf86dc2004ec6a2dc0183d1c75a9af3ba0669f7c332e4247afb1d76fb67e8a',
+        'stop_command': b'/stop\n',
+        'port': 25560,
+    },
+    '1.14.4': {
+        'server_jar_url': 'https://piston-data.mojang.com/v1/objects/3dc3d84a581f14691199cf6831b71ed1296a9fdf/server.jar',
+        'server_jar_sha256_hex': '5ecdedab3a6e129321a444490d0a467c25ea702a24a99cebe3b6aed41f8f5729',
+        'stop_command': b'/stop\n',
+        'port': 25559,
+    },
+    '1.13.2': {
+        'server_jar_url': 'https://piston-data.mojang.com/v1/objects/3737db93722a9e39eeada7c27e7aca28b144ffa7/server.jar',
+        'server_jar_sha256_hex': 'ffd3aa2c25c5ba68a706b59f2abdc69ac1748e115ca9d3b47941e197736f088e',
+        'stop_command': b'/stop\n',
+        'port': 25558,
+    },
+    '1.12.2': {
+        'server_jar_url': 'https://piston-data.mojang.com/v1/objects/886945bfb2b978778c3a0288fd7fab09d315b25f/server.jar',
+        'server_jar_sha256_hex': 'fe1f9274e6dad9191bf6e6e8e36ee6ebc737f373603df0946aafcded0d53167e',
+        'stop_command': b'/stop\n',
+        'port': 25557,
+    },
+    '1.11.2': {
+        'server_jar_url': 'https://piston-data.mojang.com/v1/objects/f00c294a1576e03fddcac777c3cf4c7d404c4ba4/server.jar',
+        'server_jar_sha256_hex': 'dec47d36b429fd05076b90b1f42c2a25138bc39204aa51b9674ef2a98d64d88a',
+        'stop_command': b'/stop\n',
+        'port': 25556,
+    },
+    '1.10.2': {
+        'server_jar_url': 'https://piston-data.mojang.com/v1/objects/3d501b23df53c548254f5e3f66492d178a48db63/server.jar',
+        'server_jar_sha256_hex': '195f468227c5f9218f3919538b9b16ba34adced67fc7d7b652c508a5e8d07a21',
+        'stop_command': b'/stop\n',
+        'port': 25555,
+    },
+    '1.9.4': {
+        'server_jar_url': 'https://piston-data.mojang.com/v1/objects/edbb7b1758af33d365bf835eb9d13de005b1e274/server.jar',
+        'server_jar_sha256_hex': '13fea7aa10d804dd14ed7ebde2493dc64c7d3c8173369309bd7f6ea4c0ea40ad',
+        'stop_command': b'/stop\n',
+        'port': 25554,
+    },
 }
 
 latest_version = '1.20.2'

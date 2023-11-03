@@ -24,10 +24,12 @@ def test_we_have_a_world_dir(world_dir):
 def test_read_no_smoke(world_dir):
     """We dont crash when reading a world"""
     world = WorldFolder(world_dir)
-    assert world.get_boundingbox()
     assert world.chunk_count()
 
-    chunk = next(world.iter_chunks())
+    bb = world.get_boundingbox()
+    center_x = (bb.minx + bb.maxx) // 2
+    center_z = (bb.minz + bb.maxz) // 2
+    chunk = world.get_chunk(center_x, center_z)
     assert chunk.get_max_height()
 
     block = chunk.get_block(0, 0, 0)
