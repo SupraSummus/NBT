@@ -2,7 +2,6 @@ import hashlib
 import os
 import stat
 import subprocess
-from concurrent.futures import ThreadPoolExecutor
 
 from .downloadsample import download_with_external_tool
 
@@ -96,6 +95,7 @@ def get_world_dir(version=latest_version):
         assert os.path.exists(world_dir)
         mark_readonly(server_dir)
 
+    assert os.path.exists(os.path.join(world_dir, 'level.dat'))
     return world_dir
 
 
@@ -160,9 +160,8 @@ def get_sha256_hex(path):
 
 
 def ensure_all():
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        for version in versions.keys():
-            executor.submit(get_world_dir, version)
+    for version in versions.keys():
+        get_world_dir(version)
 
 
 if __name__ == '__main__':
