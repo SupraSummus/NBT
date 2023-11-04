@@ -106,7 +106,7 @@ def start_server(server_dir, version):
         cwd=server_dir,
         input=versions[version]['stop_command'],
         check=True,
-        timeout=120,  # seconds
+        timeout=5 * 60,  # seconds
     )
 
 
